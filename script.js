@@ -1,32 +1,38 @@
-let draggedElement = null;
+document.addEventListener("DOMContentLoaded", function () {
+  let draggedElement = null;
 
-document.querySelectorAll(".image").forEach((image) => {
-  image.addEventListener("dragstart", function (event) {
-    draggedElement = this;
-    event.dataTransfer.setData("text/plain", this.id);
-    setTimeout(() => this.classList.add("selected"), 0); // Highlight selected image
-  });
+  // Select all draggable image divs
+  document.querySelectorAll(".image").forEach((image) => {
+    image.addEventListener("dragstart", function (event) {
+      draggedElement = this; // Store the element being dragged
+      event.dataTransfer.setData("text/plain", this.id);
+      setTimeout(() => this.classList.add("selected"), 0); // Add visual highlight
+      this.style.opacity = "0.4"; // Make dragged element semi-transparent
+    });
 
-  image.addEventListener("dragover", function (event) {
-    event.preventDefault(); // Allow dropping
-  });
+    image.addEventListener("dragover", function (event) {
+      event.preventDefault(); // Allow the drop to happen
+    });
 
-  image.addEventListener("drop", function (event) {
-    event.preventDefault();
+    image.addEventListener("drop", function (event) {
+      event.preventDefault();
 
-    if (draggedElement && draggedElement !== this) {
-      // Extract computed background images (Fixes background swap issues)
-      let draggedBg = window.getComputedStyle(draggedElement).backgroundImage;
-      let targetBg = window.getComputedStyle(this).backgroundImage;
+      if (draggedElement !== this) {
+        // Swap background images if the elements are different
+        let tempBg = this.style.backgroundImage;
+        this.style.backgroundImage = draggedElement.style.backgroundImage;
+        draggedElement.style.backgroundImage = tempBg;
+      }
+    });
 
-      // Swap background images
-      this.style.backgroundImage = draggedBg;
-      draggedElement.style.backgroundImage = targetBg;
-    }
-  });
-
-  image.addEventListener("dragend", function () {
-    this.classList.remove("selected"); // Remove highlight after dragging
-    draggedElement = null;
+    image.addEventListener("dragend", function () {
+      this.style.opacity = "1"; // Reset opacity after dragging
+      this.classList.remove("selected"); // Remove visual highlight
+      draggedElement = null; // Reset dragged element
+    });
   });
 });
+
+
+
+
